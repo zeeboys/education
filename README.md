@@ -2,13 +2,19 @@
 
 A full-stack Web3 education platform powered by Stellar blockchain, featuring automated bounty payments with EDU tokens. Contributors earn rewards for creating educational content, while learners access free Web3 tutorials and courses.
 
-## � Why Stellar?
+## 🌟 Why Stellar?
 
 - **💰 Ultra-Low Fees**: 0.00001 XLM per transaction (~$0.000001)
 - **⚡ Lightning Fast**: 3-5 second confirmations
 - **🌍 Global Access**: Available worldwide without gas fees
 - **🔒 Built-in DEX**: Native asset exchange capabilities
 - **📱 Mobile-First**: Designed for global accessibility
+
+## 🚀 Repository
+
+- **Organization**: [zeeboys/education](https://github.com/zeeboys/education)
+- **Original**: [akordavid373/decentralized-education](https://github.com/akordavid373/decentralized-education)
+
 ## 🚀 Tech Stack
 
 ### Frontend
@@ -25,7 +31,6 @@ A full-stack Web3 education platform powered by Stellar blockchain, featuring au
 - **PostgreSQL** - Database
 - **JWT** - Authentication
 - **Stellar SDK** - Blockchain interactions
-
 ### Features
 - 🔐 Stellar wallet authentication
 - 📚 Educational content management
@@ -94,11 +99,11 @@ For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md)
 
 ### Quick Start for Contributors
 ```bash
-# 1. Find a bounty at https://github.com/akordavid373/decentralized-education/issues
+# 1. Find a bounty at https://github.com/zeeboys/education/issues
 # 2. Apply using the template in the issue
 # 3. Clone and setup the project
-git clone https://github.com/akordavid373/decentralized-education.git
-cd decentralized-education
+git clone https://github.com/zeeboys/education.git
+cd education
 npm run install:all
 
 # 4. Create your feature branch
