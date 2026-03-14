@@ -1,27 +1,21 @@
-# Decentralized Education Platform 🎓💧
+# 🎓🌟 Decentralized Education Platform (Stellar-Based)
 
-A full-stack decentralized education platform for learning Web3, blockchain, and open-source development with DripsNetwork funding and contributor rewards.
+A full-stack Web3 education platform powered by Stellar blockchain, featuring automated bounty payments with EDU tokens. Contributors earn rewards for creating educational content, while learners access free Web3 tutorials and courses.
 
-## 🏗️ Project Structure
+## � Why Stellar?
 
-```
-decentralized-education/
-├── frontend/          # Next.js frontend application
-├── backend/           # Node.js/Express backend API
-├── shared/            # Shared types and utilities
-├── docs/              # Documentation
-├── scripts/           # DripsNetwork integration scripts
-└── README.md
-```
-
+- **💰 Ultra-Low Fees**: 0.00001 XLM per transaction (~$0.000001)
+- **⚡ Lightning Fast**: 3-5 second confirmations
+- **🌍 Global Access**: Available worldwide without gas fees
+- **🔒 Built-in DEX**: Native asset exchange capabilities
+- **📱 Mobile-First**: Designed for global accessibility
 ## 🚀 Tech Stack
 
 ### Frontend
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
-- **Wagmi** - Web3 wallet connections
-- **RainbowKit** - Wallet UI components
+- **Stellar SDK** - Stellar blockchain integration
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -30,12 +24,12 @@ decentralized-education/
 - **Prisma** - Database ORM
 - **PostgreSQL** - Database
 - **JWT** - Authentication
-- **Web3.js** - Blockchain interactions
+- **Stellar SDK** - Blockchain interactions
 
 ### Features
-- 🔐 Wallet-based authentication
+- 🔐 Stellar wallet authentication
 - 📚 Educational content management
-- 💰 Bounty system with DripsNetwork integration
+- 💰 EDU token bounty system
 - 👥 Contributor profiles and reputation
 - 🏆 Certification system
 - 📊 Impact metrics dashboard
@@ -45,7 +39,7 @@ decentralized-education/
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL
-- MetaMask or compatible wallet
+- Stellar wallet (any compatible wallet)
 
 ### Quick Start
 
@@ -90,13 +84,13 @@ For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md)
 1. **Browse Issues** - Find educational bounties that match your skills
 2. **Apply for Bounties** - Comment on issues with your experience and approach
 3. **Complete Work** - Follow requirements and submit pull requests
-4. **Get Rewarded** - Receive automatic ETH payments via DripsNetwork
+4. **Get Rewarded** - Receive instant EDU token payments via Stellar
 
 ### For Funders
 1. **Support Education** - Fund specific learning modules or contributors
 2. **Track Impact** - See exactly how your funds are used
-3. **Sustainable Giving** - Set up recurring funding streams
-4. **Tax Benefits** - Support open-source education
+3. **Sustainable Giving** - Set up recurring EDU token streams
+4. **Global Access** - Support education worldwide with minimal fees
 
 ### Quick Start for Contributors
 ```bash
@@ -113,13 +107,14 @@ git checkout -b bounty/[issue-number]-[description]
 # 5. Complete the work and submit a PR
 ```
 
-### DripsNetwork Integration
-- **Automated Payments**: All bounty rewards distributed via DripsNetwork
-- **Transparent Tracking**: On-chain record of all contributions and payments
-- **Recurring Funding**: Sustainable support for ongoing contributors
-- **Global Access**: Anyone can fund or contribute from anywhere
+### Stellar Integration
+- **Instant Payments**: EDU token rewards in 3-5 seconds
+- **Ultra-Low Fees**: 0.00001 XLM per transaction
+- **Global Access**: Available worldwide without gas fees
+- **Built-in DEX**: Native asset exchange capabilities
+- **Mobile-First**: Optimized for global accessibility
 
-**Setup Guide**: See [docs/DRIPS_SETUP.md](docs/DRIPS_SETUP.md) for complete DripsNetwork configuration.
+**Setup Guide**: See [docs/STELLAR_SETUP.md](docs/STELLAR_SETUP.md) for complete Stellar configuration.
 
 ## 📄 License
 
