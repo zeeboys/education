@@ -4,7 +4,7 @@
 
 - Node.js 18+
 - PostgreSQL
-- MetaMask or compatible wallet
+- Stellar wallet (Freighter, Albedo, or compatible)
 - Git
 
 ## Installation
@@ -35,7 +35,10 @@ cp .env.example .env
 Update the following variables in `backend/.env`:
 - `DATABASE_URL`: Your PostgreSQL connection string
 - `JWT_SECRET`: Generate a secure random string
-- `ETHEREUM_RPC_URL`: Your Ethereum RPC endpoint
+- `STELLAR_HORIZON_URL`: Stellar Horizon endpoint (default: https://horizon-testnet.stellar.org)
+- `STELLAR_NETWORK`: Network type (TESTNET or PUBLIC)
+- `EDU_ISSUER_PUBLIC_KEY`: Your EDU token issuer public key
+- `EDU_ISSUER_SECRET`: Your EDU token issuer secret key
 - `FRONTEND_URL`: Your frontend URL (default: http://localhost:3000)
 
 #### Frontend
@@ -48,8 +51,8 @@ cp .env.example .env.local
 
 Update the following variables in `frontend/.env.local`:
 - `NEXT_PUBLIC_API_URL`: Your backend API URL
-- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: Your WalletConnect project ID
-- `NEXT_PUBLIC_INFURA_PROJECT_ID`: Your Infura project ID
+- `NEXT_PUBLIC_STELLAR_NETWORK`: Stellar network (TESTNET or PUBLIC)
+- `NEXT_PUBLIC_EDU_ISSUER`: Your EDU token issuer public key
 
 ### 4. Database Setup
 
@@ -79,11 +82,19 @@ npm run dev
 
 The application uses PostgreSQL with Prisma ORM. The database schema is defined in `backend/prisma/schema.prisma`.
 
-### Web3 Configuration
+### Stellar Configuration
 
-1. **WalletConnect**: Create a project at [WalletConnect Cloud](https://cloud.walletconnect.com/)
-2. **Infura**: Create a project at [Infura](https://infura.io/)
-3. **DripsNetwork**: Configure the contract address in environment variables
+1. **Create EDU Token**: Use Stellar Laboratory to create your EDU token asset
+2. **Fund Testnet Account**: Use Friendbot to fund your testnet account
+3. **Configure Issuer**: Set up the EDU token issuer account and fund it
+
+#### Creating EDU Token on Testnet:
+```bash
+# 1. Create issuer account
+# 2. Create trustline for EDU token
+# 3. Issue EDU tokens to the issuer account
+# 4. Set issuer public key in environment variables
+```
 
 ### Environment Variables
 
@@ -95,14 +106,17 @@ DATABASE_URL="postgresql://username:password@localhost:5432/decentralized_educat
 JWT_SECRET=your-super-secret-jwt-key-here
 JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:3000
-ETHEREUM_RPC_URL=https://mainnet.infura.io/v3/your-infura-project-id
+STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+STELLAR_NETWORK=TESTNET
+EDU_ISSUER_PUBLIC_KEY=your-edu-token-issuer-public-key
+EDU_ISSUER_SECRET=your-edu-token-issuer-secret-key
 ```
 
 #### Frontend (.env.local)
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-walletconnect-project-id
-NEXT_PUBLIC_INFURA_PROJECT_ID=your-infura-project-id
+NEXT_PUBLIC_STELLAR_NETWORK=TESTNET
+NEXT_PUBLIC_EDU_ISSUER=your-edu-token-issuer-public-key
 ```
 
 ## Development
@@ -145,9 +159,10 @@ npm start
 ### Common Issues
 
 1. **Database Connection Error**: Ensure PostgreSQL is running and DATABASE_URL is correct
-2. **Wallet Connection Error**: Check WalletConnect project ID and Infura credentials
+2. **Stellar Connection Error**: Check Stellar network configuration and EDU issuer keys
 3. **CORS Error**: Verify FRONTEND_URL matches your frontend URL
 4. **TypeScript Errors**: Run `npm run build` to check for compilation issues
+5. **EDU Token Issues**: Ensure EDU token is properly created and issuer account is funded
 
 ### Debug Mode
 
@@ -174,4 +189,6 @@ Set `NODE_ENV=development` to enable detailed error messages and debugging featu
 - Use strong JWT secrets in production
 - Enable HTTPS in production
 - Implement rate limiting and input validation
-- Regular security audits of smart contracts
+- Secure EDU token issuer keys properly
+- Use hardware wallets for issuer accounts in production
+- Regular security audits of Stellar transactions and accounts

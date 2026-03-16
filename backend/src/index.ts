@@ -4,10 +4,10 @@ import helmet from 'helmet'
 import dotenv from 'dotenv'
 import rateLimit from 'express-rate-limit'
 
-import bountyRoutes from './routes/bountyRoutes'
-import userRoutes from './routes/userRoutes'
-import authRoutes from './routes/authRoutes'
-import { errorHandler } from './middleware/errorHandler'
+import bountyRoutes from './routes/bounty.routes'
+import userRoutes from './routes/user.routes'
+import authRoutes from './routes/auth.routes'
+import { errorHandler } from './middleware/error.middleware'
 
 dotenv.config()
 

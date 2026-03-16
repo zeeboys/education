@@ -79,6 +79,37 @@ A full-stack Web3 education platform powered by Stellar blockchain, featuring au
    cd frontend && npm run dev
    ```
 
+### Environment Variables
+
+#### Backend (.env)
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/decentralized_education"
+
+# JWT
+JWT_SECRET="your-super-secret-jwt-key"
+
+# Stellar Configuration
+STELLAR_HORIZON_URL="https://horizon-testnet.stellar.org"
+STELLAR_NETWORK="TESTNET"
+EDU_ISSUER_PUBLIC_KEY="your-edu-token-issuer-public-key"
+EDU_ISSUER_SECRET="your-edu-token-issuer-secret-key"
+
+# CORS
+FRONTEND_URL="http://localhost:3000"
+PORT=3001
+```
+
+#### Frontend (.env.local)
+```env
+# Stellar Configuration
+NEXT_PUBLIC_STELLAR_NETWORK="TESTNET"
+NEXT_PUBLIC_EDU_ISSUER="your-edu-token-issuer-public-key"
+
+# API URL
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+```
+
 ### Detailed Setup
 
 For detailed setup instructions, see [docs/SETUP.md](docs/SETUP.md)

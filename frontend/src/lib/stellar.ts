@@ -1,4 +1,5 @@
 import { StellarSdk, Horizon } from 'stellar-sdk'
+import { useState, useEffect } from 'react'
 
 // Stellar configuration
 const STELLAR_NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'TESTNET'

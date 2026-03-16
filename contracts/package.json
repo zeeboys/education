@@ -1,0 +1,36 @@
+{
+  "name": "decentralized-education-contracts",
+  "version": "1.0.0",
+  "description": "Stellar smart contracts for decentralized education platform",
+  "main": "index.js",
+  "scripts": {
+    "build": "soroban contract build",
+    "test": "soroban contract test",
+    "deploy:edu-token": "soroban contract deploy contracts/edu_token.wasm --source-account $EDU_TOKEN_ISSUER --network testnet",
+    "deploy:bounty-escrow": "soroban contract deploy contracts/bounty_escrow.wasm --source-account $BOUNTY_ESCROW_ADMIN --network testnet",
+    "deploy:reputation": "soroban contract deploy contracts/reputation.wasm --source-account $REPUTATION_ADMIN --network testnet",
+    "deploy:all": "npm run deploy:edu-token && npm run deploy:bounty-escrow && npm run deploy:reputation",
+    "invoke:initialize": "soroban contract invoke --id $EDU_TOKEN_CONTRACT_ID --source-account $EDU_TOKEN_ISSUER -- initialize --admin $EDU_TOKEN_ISSUER --name \"Education Token\" --symbol \"EDU\" --decimals 7",
+    "invoke:mint": "soroban contract invoke --id $EDU_TOKEN_CONTRACT_ID --source-account $EDU_TOKEN_ISSUER -- mint --to $RECIPIENT --amount 1000000000",
+    "bind:edu-token": "soroban contract bind contracts/edu_token.wasm --network testnet",
+    "bind:bounty-escrow": "soroban contract bind contracts/bounty_escrow.wasm --network testnet",
+    "bind:reputation": "soroban contract bind contracts/reputation.wasm --network testnet",
+    "bind:all": "npm run bind:edu-token && npm run bind:bounty-escrow && npm run bind:reputation"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "smart-contracts",
+    "education",
+    "decentralized"
+  ],
+  "author": "Decentralized Education Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@stellar/stellar-sdk": "^11.0.0",
+    "soroban-cli": "^1.0.0"
+  },
+  "dependencies": {
+    "soroban-sdk": "^1.0.0"
+  }
+}

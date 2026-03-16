@@ -17,10 +17,12 @@ model User {
   avatar            String?
   reputation        Int       @default(0)
   totalEarned       String    @default("0")
+  eduTokenBalance   String    @default("0")
   skills            String[]
   certifications   Certification[]
   createdBounties   Bounty[]  @relation("BountyCreator")
   assignedBounties  Bounty[]  @relation("BountyAssignee")
+  applications      BountyApplication[]
   submissions       Submission[]
   reviews           Review[]
   createdAt         DateTime  @default(now())
@@ -36,6 +38,8 @@ model Bounty {
   category    BountyCategory
   difficulty  Difficulty
   reward      String
+  tokenReward String?     // EDU token amount
+  stellarTxHash String?   // Stellar transaction hash for payment
   status      BountyStatus @default(OPEN)
   tags        String[]
   requirements String[]
@@ -45,6 +49,7 @@ model Bounty {
   assignee    User?       @relation("BountyAssignee", fields: [assigneeId], references: [id])
   submissions Submission[]
   reviews     Review[]
+  applications BountyApplication[]
   deadline    DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -83,6 +88,22 @@ model Review {
   updatedAt    DateTime @updatedAt
 
   @@map("reviews")
+}
+
+model BountyApplication {
+  id          String   @id @default(cuid())
+  bountyId    String
+  bounty      Bounty   @relation(fields: [bountyId], references: [id])
+  applicantId String
+  applicant   User     @relation(fields: [applicantId], references: [id])
+  proposal    String
+  experience  String
+  timeline    String
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("bounty_applications")
 }
 
 model Certification {
@@ -126,6 +147,13 @@ enum BountyStatus {
   UNDER_REVIEW
   COMPLETED
   CANCELLED
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
 }
 
 enum SubmissionStatus {
