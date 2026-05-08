@@ -188,3 +188,141 @@ export const getUserStats = asyncHandler(async (req: Request, res: Response) => 
     }
   })
 })
+
+export const getPublicProfile = asyncHandler(async (req: Request, res: Response) => {
+  const { walletAddress } = req.params
+
+  const user = await prisma.user.findUnique({
+    where: { walletAddress },
+    include: {
+      submissions: {
+        where: {
+          status: 'APPROVED'
+        },
+        include: {
+          bounty: {
+            select: {
+              id: true,
+              title: true,
+              reward: true,
+              category: true,
+              difficulty: true,
+              completedAt: true
+            }
+          },
+          reviews: {
+            include: {
+              reviewer: {
+                select: {
+                  username: true,
+                  displayName: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      },
+      assignedBounties: {
+        where: {
+          status: 'COMPLETED'
+        },
+        include: {
+          creator: {
+            select: {
+              username: true,
+              displayName: true
+            }
+          }
+        },
+        orderBy: { updatedAt: 'desc' }
+      },
+      certifications: {
+        orderBy: { issueDate: 'desc' },
+        take: 10
+      },
+      _count: {
+        select: {
+          submissions: true,
+          assignedBounties: true,
+          certifications: true
+        }
+      }
+    }
+  })
+
+  if (!user) {
+    throw createError('Profile not found', 404)
+  }
+
+  // Calculate reputation score based on approved submissions and peer ratings
+  const approvedSubmissions = user._count.submissions
+  const completedBounties = user._count.assignedBounties
+  const averageRating = user.averageRating || 0
+  
+  // Reputation calculation: base score from submissions + bonus from ratings
+  const baseReputation = approvedSubmissions * 10 + completedBounties * 5
+  const ratingBonus = averageRating > 0 ? Math.round(averageRating * 20) : 0
+  const calculatedReputation = baseReputation + ratingBonus
+
+  // Calculate total earned from completed bounties
+  const totalEarnedFromBounties = user.assignedBounties.reduce((sum, bounty) => {
+    return sum + parseFloat(bounty.reward || '0')
+  }, 0)
+
+  res.json({
+    success: true,
+    data: {
+      profile: {
+        walletAddress: user.walletAddress,
+        username: user.username,
+        displayName: user.displayName,
+        bio: user.bio,
+        avatar: user.avatar,
+        skills: user.skills,
+        reputation: calculatedReputation,
+        totalEarned: user.totalEarned || totalEarnedFromBounties.toString(),
+        submissionCount: approvedSubmissions,
+        averageRating: averageRating,
+        completedBounties: completedBounties
+      },
+      activity: {
+        submissions: user.submissions.map(submission => ({
+          id: submission.id,
+          bountyTitle: submission.bounty.title,
+          bountyReward: submission.bounty.reward,
+          category: submission.bounty.category,
+          difficulty: submission.bounty.difficulty,
+          completedAt: submission.bounty.completedAt || submission.updatedAt,
+          reviews: submission.reviews.map(review => ({
+            rating: review.rating,
+            comment: review.comment,
+            reviewer: review.reviewer.displayName || review.reviewer.username,
+            createdAt: review.createdAt
+          }))
+        })),
+        completedBounties: user.assignedBounties.map(bounty => ({
+          id: bounty.id,
+          title: bounty.title,
+          reward: bounty.reward,
+          category: bounty.category,
+          difficulty: bounty.difficulty,
+          completedAt: bounty.updatedAt,
+          creator: bounty.creator.displayName || bounty.creator.username
+        })),
+        certifications: user.certifications.map(cert => ({
+          title: cert.title,
+          issuer: cert.issuer,
+          issueDate: cert.issueDate,
+          verified: cert.verified
+        }))
+      },
+      stats: {
+        totalSubmissions: approvedSubmissions,
+        completedBounties: completedBounties,
+        certifications: user._count.certifications,
+        reputation: calculatedReputation
+      }
+    }
+  })
+})

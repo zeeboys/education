@@ -102,6 +102,11 @@ export const userAPI = {
     const response = await api.get(`/api/users/stats/${userId}`)
     return response.data
   },
+
+  getPublicProfile: async (walletAddress: string): Promise<ApiResponse<any>> => {
+    const response = await api.get(`/api/users/public/${walletAddress}`)
+    return response.data
+  },
 }
 
 export default api
