@@ -7,6 +7,8 @@ import rateLimit from 'express-rate-limit'
 import bountyRoutes from './routes/bountyRoutes'
 import userRoutes from './routes/userRoutes'
 import authRoutes from './routes/authRoutes'
+import certificateRoutes from './routes/certificateRoutes'
+import assessmentRoutes from './routes/assessmentRoutes'
 import { errorHandler } from './middleware/errorHandler'
 
 dotenv.config()
@@ -32,6 +34,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/api/auth', authRoutes)
 app.use('/api/bounties', bountyRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/certificates', certificateRoutes)
+app.use('/api/assessments', assessmentRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
