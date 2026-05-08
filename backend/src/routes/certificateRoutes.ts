@@ -4,13 +4,17 @@ import {
   getUserCertificates,
   getCertificateByHash,
   verifyCertificate,
-  checkDuplicateCertificate
+  checkDuplicateCertificate,
+  getCertificatesByWallet
 } from '../controllers/certificateController'
 import { authenticateToken } from '../middleware/auth'
 
 const router = Router()
 
-// All certificate routes require authentication
+// GET /api/certificates/user/:walletAddress - Get certificates by wallet address (public route)
+router.get('/user/:walletAddress', getCertificatesByWallet)
+
+// All certificate routes below require authentication
 router.use(authenticateToken)
 
 // POST /api/certificates/issue - Issue a new certificate

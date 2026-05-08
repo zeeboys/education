@@ -120,3 +120,21 @@ export const checkDuplicateCertificate = asyncHandler(async (req: Request, res: 
     }
   })
 })
+
+export const getCertificatesByWallet = asyncHandler(async (req: Request, res: Response) => {
+  const { walletAddress } = req.params
+
+  if (!walletAddress) {
+    throw createError('Wallet address is required', 400)
+  }
+
+  const certificates = await CertificateService.getCertificatesByWallet(walletAddress)
+
+  res.json({
+    success: true,
+    data: {
+      certificates,
+      count: certificates.length
+    }
+  })
+})
