@@ -23,6 +23,10 @@ model User {
   assignedBounties  Bounty[]  @relation("BountyAssignee")
   submissions       Submission[]
   reviews           Review[]
+  courses           Course[]  @relation("CourseCreator")
+  certificates      Certificate[] @relation("Certificates")
+  assessmentAttempts AssessmentAttempt[] @relation("AssessmentAttempts")
+  enrollments       Enrollment[] @relation("Enrollments")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -85,6 +89,87 @@ model Review {
   @@map("reviews")
 }
 
+model Course {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  category      String
+  difficulty    String
+  duration      Int      // in hours
+  thumbnail     String?
+  creatorId     String
+  creator       User     @relation("CourseCreator", fields: [creatorId], references: [id])
+  assessments   Assessment[]
+  certificates  Certificate[]
+  enrollments   Enrollment[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("courses")
+}
+
+model Assessment {
+  id          String   @id @default(cuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  title       String
+  type        AssessmentType @default(FINAL)
+  passingScore Int     @default(70)
+  questions   Json     // Array of questions with options and correct answers
+  attempts    AssessmentAttempt[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("assessments")
+}
+
+model AssessmentAttempt {
+  id            String   @id @default(cuid())
+  assessmentId  String
+  assessment    Assessment @relation(fields: [assessmentId], references: [id])
+  userId        String
+  user          User     @relation("AssessmentAttempts", fields: [userId], references: [id])
+  score         Int
+  passed        Boolean  @default(false)
+  answers       Json     // User's answers
+  completedAt   DateTime @default(now())
+
+  @@map("assessment_attempts")
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id])
+  userId     String
+  user       User     @relation("Enrollments", fields: [userId], references: [id])
+  progress   Float    @default(0.0) // 0-100 percentage
+  completed  Boolean  @default(false)
+  completedAt DateTime?
+  enrolledAt DateTime @default(now())
+
+  @@map("enrollments")
+}
+
+model Certificate {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation("Certificates", fields: [userId], references: [id])
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id])
+  assessmentId      String
+  stellarTxHash     String?  @unique // Stellar transaction hash
+  certificateHash   String   @unique // SHA-256 hash of certificate data
+  stellarDataKey    String?  // Key used in MANAGE_DATA operation
+  walletAddress     String   // Learner's Stellar wallet address
+  completionDate    DateTime @default(now())
+  stellarExplorerUrl String?
+  verified          Boolean  @default(false)
+  metadata          Json?    // Additional certificate metadata
+
+  @@map("certificates")
+}
+
 model Certification {
   id          String   @id @default(cuid())
   userId      String
@@ -126,6 +211,13 @@ enum BountyStatus {
   UNDER_REVIEW
   COMPLETED
   CANCELLED
+}
+
+enum AssessmentType {
+  QUIZ
+  ASSIGNMENT
+  FINAL
+  PRACTICE
 }
 
 enum SubmissionStatus {
