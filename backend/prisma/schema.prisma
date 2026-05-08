@@ -17,6 +17,8 @@ model User {
   avatar            String?
   reputation        Int       @default(0)
   totalEarned       String    @default("0")
+  approvedSubmissions Int      @default(0)
+  averageRating     Float?    @default(0)
   skills            String[]
   certifications   Certification[]
   createdBounties   Bounty[]  @relation("BountyCreator")
