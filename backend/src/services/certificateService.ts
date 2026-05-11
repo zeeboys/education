@@ -371,6 +371,36 @@ export class CertificateService {
   }
 
   /**
+   * Get certificates by wallet address (public endpoint)
+   */
+  static async getCertificatesByWallet(walletAddress: string): Promise<any[]> {
+    return await prisma.certificate.findMany({
+      where: { walletAddress },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            walletAddress: true
+          }
+        },
+        course: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            difficulty: true,
+            duration: true,
+            thumbnail: true
+          }
+        }
+      },
+      orderBy: { completionDate: 'desc' }
+    })
+  }
+
+  /**
    * Trigger certificate issuance after assessment completion
    */
   static async triggerCertificateIssuance(

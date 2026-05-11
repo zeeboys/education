@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { userAPI } from '@/lib/api'
-import { User, Trophy, Star, Calendar, Award, Briefcase, CheckCircle } from 'lucide-react'
+import { User, Trophy, Star, Calendar, Award, Briefcase, CheckCircle, ExternalLink } from 'lucide-react'
+import SimpleCertificateCard from '@/components/SimpleCertificateCard'
+import { Certificate } from '@/types/certificate'
 
 interface ProfileData {
   profile: {
@@ -62,15 +64,40 @@ export default function ProfilePage() {
   const params = useParams()
   const walletAddress = params.walletAddress as string
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
+  const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [activeTab, setActiveTab] = useState<'bounties' | 'submissions' | 'certificates'>('bounties')
+  const [verifying, setVerifying] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await userAPI.getPublicProfile(walletAddress)
-        setProfileData(response.data)
+        
+        // Fetch profile data
+        const profileResponse = await userAPI.getPublicProfile(walletAddress)
+        setProfileData(profileResponse.data)
+        
+        // Fetch certificates
+        try {
+          const certificatesResponse = await fetch(`/api/certificates/user/${walletAddress}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+          })
+          
+          if (certificatesResponse.ok) {
+            const certificatesData = await certificatesResponse.json()
+            setCertificates(certificatesData.data.certificates || [])
+          }
+        } catch (certError) {
+          console.error('Error fetching certificates:', certError)
+          // Don't fail the entire profile load if certificates fail
+        }
+        
       } catch (err) {
         setError('Profile not found')
         console.error('Error fetching profile:', err)
@@ -80,9 +107,48 @@ export default function ProfilePage() {
     }
 
     if (walletAddress) {
-      fetchProfile()
+      fetchData()
     }
   }, [walletAddress])
+
+  const handleVerifyCertificate = async (certificateHash: string) => {
+    try {
+      setVerifying(certificateHash)
+      
+      const response = await fetch(`/api/certificates/${certificateHash}/verify`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to verify certificate')
+      }
+
+      const data = await response.json()
+      
+      if (data.success && data.verified) {
+        // Update the certificate verification status
+        setCertificates((prev: Certificate[]) => 
+          prev.map((cert: Certificate) => 
+            cert.certificateHash === certificateHash 
+              ? { ...cert, verified: true }
+              : cert
+          )
+        )
+        alert('Certificate verified successfully on Stellar blockchain!')
+      } else {
+        alert(data.error || 'Certificate verification failed')
+      }
+    } catch (error) {
+      console.error('Error verifying certificate:', error)
+      alert('Failed to verify certificate')
+    } finally {
+      setVerifying(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -228,52 +294,156 @@ export default function ProfilePage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px">
-              <button className="py-4 px-6 border-b-2 border-blue-500 text-blue-600 font-medium">
+              <button 
+                onClick={() => setActiveTab('bounties')}
+                className={`py-4 px-6 border-b-2 font-medium ${
+                  activeTab === 'bounties' 
+                    ? 'border-blue-500 text-blue-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 Completed Bounties ({activity.completedBounties.length})
               </button>
-              <button className="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+              <button 
+                onClick={() => setActiveTab('submissions')}
+                className={`py-4 px-6 border-b-2 font-medium ${
+                  activeTab === 'submissions' 
+                    ? 'border-blue-500 text-blue-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 Submissions ({activity.submissions.length})
               </button>
-              <button className="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
-                Certifications ({activity.certifications.length})
+              <button 
+                onClick={() => setActiveTab('certificates')}
+                className={`py-4 px-6 border-b-2 font-medium ${
+                  activeTab === 'certificates' 
+                    ? 'border-blue-500 text-blue-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Certificates ({certificates.length})
               </button>
             </nav>
           </div>
           
           <div className="p-6">
             {/* Completed Bounties */}
-            <div className="space-y-4">
-              {activity.completedBounties.length === 0 ? (
-                <div className="text-center py-8">
-                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">No completed bounties yet</p>
-                </div>
-              ) : (
-                activity.completedBounties.map((bounty) => (
-                  <div key={bounty.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{bounty.title}</h3>
-                      <span className="text-green-600 font-bold">{bounty.reward} EDU</span>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                        {bounty.category}
-                      </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
-                        {bounty.difficulty}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(bounty.completedAt).toLocaleDateString()}</span>
+            {activeTab === 'bounties' && (
+              <div className="space-y-4">
+                {activity.completedBounties.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-500">No completed bounties yet</p>
+                  </div>
+                ) : (
+                  activity.completedBounties.map((bounty: any) => (
+                    <div key={bounty.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{bounty.title}</h3>
+                        <span className="text-green-600 font-bold">{bounty.reward} EDU</span>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                          {bounty.category}
+                        </span>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
+                          {bounty.difficulty}
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date(bounty.completedAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-500">
+                        Created by {bounty.creator}
                       </div>
                     </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      Created by {bounty.creator}
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Submissions */}
+            {activeTab === 'submissions' && (
+              <div className="space-y-4">
+                {activity.submissions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-500">No submissions yet</p>
+                  </div>
+                ) : (
+                  activity.submissions.map((submission: any) => (
+                    <div key={submission.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{submission.bountyTitle}</h3>
+                        <span className="text-green-600 font-bold">{submission.bountyReward} EDU</span>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                          {submission.category}
+                        </span>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">
+                          {submission.difficulty}
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date(submission.completedAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      {submission.reviews.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <h4 className="font-medium text-gray-900">Reviews:</h4>
+                          {submission.reviews.map((review: any, index: number) => (
+                            <div key={index} className="bg-gray-50 p-3 rounded text-sm">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-medium">{review.reviewer}</span>
+                                <span className="text-yellow-500">{'⭐'.repeat(review.rating)}</span>
+                              </div>
+                              <p className="text-gray-600">{review.comment}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Certificates */}
+            {activeTab === 'certificates' && (
+              <div className="space-y-6">
+                {certificates.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No certificates yet</h3>
+                    <p className="text-gray-600">
+                      Complete courses and pass final assessments to earn verifiable certificates on the Stellar blockchain.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Verifiable Certificates</h2>
+                      <p className="text-gray-600">
+                        Certificates secured on the Stellar blockchain with verifiable proof of completion
+                      </p>
+                    </div>
+                    
+                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
+                      {certificates.map((certificate: Certificate) => (
+                        <SimpleCertificateCard
+                          key={certificate.id}
+                          certificate={certificate}
+                          onVerify={handleVerifyCertificate}
+                        />
+                      ))}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
